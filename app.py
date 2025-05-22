@@ -1,12 +1,11 @@
 from flask import Flask, request, jsonify
-from bs4 import BeautifulSoup
 import requests
 
 app = Flask(__name__)
 
 @app.route('/')
 def home():
-    return "Web Crawler API is running!"
+    return "Web Crawler API using jsonlink.io is running!"
 
 @app.route('/generate-schema', methods=['POST'])
 def generate_schema():
@@ -15,25 +14,25 @@ def generate_schema():
         return jsonify({"error": "Missing URL"}), 400
 
     try:
+        api_url = "https://jsonlink.io/api/extract"
         headers = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-            "Accept-Language": "en-US,en;q=0.9",
-            "Accept-Encoding": "gzip, deflate, br"
+            "Content-Type": "application/json",
+            "Accept": "application/json"
         }
 
-        response = requests.get(url, headers=headers, timeout=10)
-        soup = BeautifulSoup(response.text, 'html.parser')
+        resp = requests.post(api_url, json={"url": url}, headers=headers, timeout=10)
 
-        title = soup.title.string.strip() if soup.title else ''
-        meta_desc = soup.find('meta', attrs={'name': 'description'})
-        description = meta_desc['content'].strip() if meta_desc else ''
+        if resp.status_code != 200:
+            return jsonify({"error": f"Metadata fetch failed: {resp.status_code}"}), 500
+
+        data = resp.json()
 
         schema = {
             "@context": "https://schema.org",
             "@type": "WebPage",
             "url": url,
-            "name": title,
-            "description": description
+            "name": data.get("title", ""),
+            "description": data.get("description", "")
         }
 
         return jsonify(schema)
