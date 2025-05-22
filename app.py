@@ -20,7 +20,8 @@ def generate_schema():
             "Accept-Language": "en-US,en;q=0.9",
             "Accept-Encoding": "gzip, deflate, br"
         }
-response = requests.get(url, headers=headers, timeout=10)
+
+        response = requests.get(url, headers=headers, timeout=10)
         soup = BeautifulSoup(response.text, 'html.parser')
 
         title = soup.title.string.strip() if soup.title else ''
@@ -36,5 +37,6 @@ response = requests.get(url, headers=headers, timeout=10)
         }
 
         return jsonify(schema)
+
     except Exception as e:
         return jsonify({"error": str(e)}), 500
