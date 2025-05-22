@@ -17,7 +17,8 @@ def generate_schema():
         api_url = "https://jsonlink.io/api/extract"
         headers = {
             "Content-Type": "application/json",
-            "Accept": "application/json"
+            "Accept": "application/json",
+            "User-Agent": "Mozilla/5.0 (compatible; WebCrawler/1.0; +https://webcrawler-api.onrender.com/)"
         }
 
         resp = requests.post(api_url, json={"url": url}, headers=headers, timeout=10)
