@@ -3,9 +3,12 @@ import requests
 
 app = Flask(__name__)
 
+# LinkPreview API Key
+LINK_PREVIEW_API_KEY = "4e621422cae3dbbe91a9199d4370a465"
+
 @app.route('/')
 def home():
-    return "Web Crawler API using jsonlink.io is running!"
+    return "Web Crawler API using LinkPreview is running!"
 
 @app.route('/generate-schema', methods=['POST'])
 def generate_schema():
@@ -14,24 +17,11 @@ def generate_schema():
         return jsonify({"error": "Missing URL"}), 400
 
     try:
-        api_url = "https://jsonlink.io/api/extract"
-
-        headers = {
-            "Content-Type": "application/json",
-            "Accept": "application/json",
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-            "Referer": "https://webcrawler-api.onrender.com",
-            "Origin": "https://webcrawler-api.onrender.com"
-        }
-
-        payload = {
-            "url": url
-        }
-
-        resp = requests.post(api_url, json=payload, headers=headers, timeout=10)
+        api_url = f"https://api.linkpreview.net/?key={LINK_PREVIEW_API_KEY}&q={url}"
+        resp = requests.get(api_url, timeout=10)
 
         if resp.status_code != 200:
-            return jsonify({"error": f"Metadata fetch failed: {resp.status_code}", "response": resp.text}), 500
+            return jsonify({"error": f"Metadata fetch failed: {resp.status_code}"}), 500
 
         data = resp.json()
 
